@@ -5,8 +5,8 @@ import numpy as np
 
 
 Train_batch_size = 256
-Train_Glob_Iterations = 200
-dataset = 'artificial'
+Train_Glob_Iterations = 300
+dataset = 'sensorless'
 ###################################################################################
 def import_pickled_data(string):
     f = gzip.open('../data/'+string+'.pkl.gz','rb')
@@ -47,7 +47,7 @@ def Analyse_custom_Optimizer(X_train, y_train, X_test, y_test):
     import gc
     # Lets start with creating a model and then train batch wise.
     model = Network_class.Agent()
-    model = model.init_NN_custom(classes, 0.001, [inputs, 300, 300, 300, 300, 300, 300], tf.nn.relu)
+    model = model.init_NN_custom(classes, 0.001, [inputs, 50, 50, 50, 50, 50, 50], tf.nn.relu)
 
     try:
         t = xrange(Train_Glob_Iterations)
@@ -64,13 +64,13 @@ def Analyse_custom_Optimizer(X_train, y_train, X_test, y_test):
                 # Apply gradients
                 summary, _ = model.sess.run( [ model.Summaries['merged'], model.Trainer["apply_placeholder_op"] ], \
                 feed_dict= return_dict( model.Trainer["grad_placeholder"], List, model, batch_xs, batch_ys) )
+
                 # model.Summaries['train_writer'].add_summary(summary, i)
 
 
             if i % 1 == 0:
                 summary, a  = model.sess.run( [model.Summaries['merged'], model.Evaluation['accuracy']], feed_dict={ model.Deep['FL_layer0'] : \
                 X_test, model.classifier['Target'] : y_test})
-                # print "accuracy -- ", a
                 # model.Summaries['test_writer'].add_summary(summary, i)
             if a > 0.99:
                 summary, pr  = model.sess.run( [ model.Summaries['merged'], model.Evaluation['prob'] ], \
@@ -103,12 +103,14 @@ from Library_Paper_two import *
 
 
 X_train, Tree = initialize_calculation(T = None, Data = X_train, gsize = 2,\
-par_train = 0, output_dimension = 200)
+par_train = 0, output_dimension = 20)
 X_test, Tree = initialize_calculation(T = Tree, Data = X_test, gsize = 2,\
-par_train = 1, output_dimension = 200)
+par_train = 1, output_dimension = 20)
+
+
 print "Train, Test", X_train.shape, X_test.shape
 inputs = X_train.shape[1]
-classes = (max(y_train))
+classes = int(max(y_train))
 print classes
 import tflearn
 for i in tqdm(xrange(100)):
